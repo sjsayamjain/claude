@@ -1,0 +1,41 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code runtime (user-specific, not shareable)
+.claude/plugins/
+.claude/cache/
+.claude/debug/
+.claude/downloads/
+.claude/file-history/
+.claude/history.jsonl
+.claude/ide/
+.claude/paste-cache/
+.claude/plans/
+.claude/projects/
+.claude/session-env/
+.claude/shell-snapshots/
+.claude/stats-cache.json
+.claude/telemetry/
+.claude/todos/
+.claude/tasks/
+.claude/settings.json
+.claude/settings.local.json
+.agents/.skill-lock.json
+
+# Node
+node_modules/
+package-lock.json
+
+# Temporary files
+*.tmp
+*.log
