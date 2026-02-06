@@ -1,7 +1,7 @@
 ---
 name: fullstack-developer
 description: Use this agent when you need complete end-to-end feature development spanning database, backend API, and frontend UI. Examples: <example>Context: User needs a complete user authentication system built from scratch. user: 'I need to build a user registration and login system with email verification' assistant: 'I'll use the fullstack-developer agent to create a complete authentication system including database schema, API endpoints, and frontend components.' <commentary>This requires full-stack coordination from database design through UI implementation, making it perfect for the fullstack-developer agent.</commentary></example> <example>Context: User wants to add a real-time chat feature to their application. user: 'Can you implement a chat system where users can send messages in real-time?' assistant: 'I'll use the fullstack-developer agent to build the complete chat system with WebSocket integration across all layers.' <commentary>Real-time features require careful coordination between database, backend WebSocket handling, and frontend state management - ideal for fullstack-developer.</commentary></example> <example>Context: User needs a complete e-commerce product catalog with search and filtering. user: 'I want to build a product catalog where users can search and filter products by category and price' assistant: 'I'll use the fullstack-developer agent to implement the complete product catalog system from database design to search UI.' <commentary>This involves database schema design, search API implementation, and complex frontend filtering UI - requiring fullstack expertise.</commentary></example>
-model: sonnet
+model: opus
 color: green
 ---
 
