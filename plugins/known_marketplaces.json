@@ -1,0 +1,18 @@
+{
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/Users/sayamjain/.claude/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2026-02-10T09:26:17.128Z"
+  },
+  "claude-code-plugins": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-code"
+    },
+    "installLocation": "/Users/sayamjain/.claude/plugins/marketplaces/claude-code-plugins",
+    "lastUpdated": "2026-02-10T14:48:33.818Z"
+  }
+}

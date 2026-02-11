@@ -1,0 +1,345 @@
+{
+  "version": 2,
+  "plugins": {
+    "frontend-design@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/frontend-design/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-03T03:57:51.105Z",
+        "lastUpdated": "2026-02-09T04:40:30.634Z",
+        "gitCommitSha": "27d2b86d72da27c64585150857cee8472ad47abb"
+      }
+    ],
+    "context7@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/context7/236752ad9ab3",
+        "version": "236752ad9ab3",
+        "installedAt": "2026-02-06T03:57:55.593Z",
+        "lastUpdated": "2026-02-06T03:57:55.593Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "code-review@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/code-review/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:55.602Z",
+        "lastUpdated": "2026-02-09T04:40:30.639Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "github@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/github/236752ad9ab3",
+        "version": "236752ad9ab3",
+        "installedAt": "2026-02-06T03:57:55.605Z",
+        "lastUpdated": "2026-02-06T03:57:55.605Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "feature-dev@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/feature-dev/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:55.613Z",
+        "lastUpdated": "2026-02-09T04:40:30.637Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "code-simplifier@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/code-simplifier/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:57:55.616Z",
+        "lastUpdated": "2026-02-06T03:57:55.616Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "ralph-loop@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/ralph-loop/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:55.620Z",
+        "lastUpdated": "2026-02-09T04:40:30.646Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "typescript-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/typescript-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:57:55.622Z",
+        "lastUpdated": "2026-02-06T03:57:55.622Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "playwright@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/playwright/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:55.624Z",
+        "lastUpdated": "2026-02-09T04:40:30.640Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "commit-commands@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/commit-commands/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:55.626Z",
+        "lastUpdated": "2026-02-09T04:40:30.647Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "serena@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/serena/236752ad9ab3",
+        "version": "236752ad9ab3",
+        "installedAt": "2026-02-06T03:57:55.628Z",
+        "lastUpdated": "2026-02-06T03:57:55.628Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "security-guidance@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/security-guidance/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:55.632Z",
+        "lastUpdated": "2026-02-09T04:40:30.658Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "superpowers@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0",
+        "version": "4.2.0",
+        "installedAt": "2026-02-06T03:57:57.662Z",
+        "lastUpdated": "2026-02-06T03:57:57.662Z",
+        "gitCommitSha": "a98c5dfc9de0df5318f4980d91d24780a566ee60"
+      }
+    ],
+    "pr-review-toolkit@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/pr-review-toolkit/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:57.668Z",
+        "lastUpdated": "2026-02-09T04:40:30.643Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "pyright-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/pyright-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:57:57.670Z",
+        "lastUpdated": "2026-02-06T03:57:57.670Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "figma@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/figma/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:57:58.776Z",
+        "lastUpdated": "2026-02-06T03:57:58.776Z",
+        "gitCommitSha": "20aca44ee6ba6092037e943c151c067896828360"
+      }
+    ],
+    "agent-sdk-dev@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/agent-sdk-dev/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:58.780Z",
+        "lastUpdated": "2026-02-09T04:40:30.660Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "plugin-dev@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/plugin-dev/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:58.790Z",
+        "lastUpdated": "2026-02-09T04:40:30.658Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "hookify@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/hookify/236752ad9ab3",
+        "version": "236752ad9ab3",
+        "installedAt": "2026-02-06T03:57:58.795Z",
+        "lastUpdated": "2026-02-06T03:57:58.795Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "linear@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/linear/236752ad9ab3",
+        "version": "236752ad9ab3",
+        "installedAt": "2026-02-06T03:57:58.797Z",
+        "lastUpdated": "2026-02-06T03:57:58.797Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "vercel@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/vercel/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:57:59.881Z",
+        "lastUpdated": "2026-02-06T03:57:59.881Z",
+        "gitCommitSha": "ae067751b4f42c97d13054211657275029ca8b6d"
+      }
+    ],
+    "learning-output-style@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/learning-output-style/2cd88e7947b7",
+        "version": "2cd88e7947b7",
+        "installedAt": "2026-02-06T03:57:59.884Z",
+        "lastUpdated": "2026-02-09T04:40:30.661Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "claude-md-management@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/claude-md-management/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:57:59.887Z",
+        "lastUpdated": "2026-02-06T03:57:59.887Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "sentry@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/sentry/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.145Z",
+        "lastUpdated": "2026-02-06T03:58:01.145Z",
+        "gitCommitSha": "d237d4c314e9066689c401a3d61dd3bbfbb7a209"
+      }
+    ],
+    "claude-code-setup@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/claude-code-setup/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.149Z",
+        "lastUpdated": "2026-02-06T03:58:01.149Z",
+        "gitCommitSha": "236752ad9ab36029b648bfd94707944760242768"
+      }
+    ],
+    "agent-sdk-dev@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/agent-sdk-dev/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.151Z",
+        "lastUpdated": "2026-02-06T03:58:01.151Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ],
+    "claude-opus-4-5-migration@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/claude-opus-4-5-migration/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.153Z",
+        "lastUpdated": "2026-02-06T03:58:01.153Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ],
+    "code-review@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/code-review/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.155Z",
+        "lastUpdated": "2026-02-06T03:58:01.155Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ],
+    "commit-commands@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/commit-commands/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.156Z",
+        "lastUpdated": "2026-02-06T03:58:01.156Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ],
+    "explanatory-output-style@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/explanatory-output-style/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.158Z",
+        "lastUpdated": "2026-02-06T03:58:01.158Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ],
+    "feature-dev@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/feature-dev/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.159Z",
+        "lastUpdated": "2026-02-06T03:58:01.159Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ],
+    "frontend-design@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/frontend-design/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.161Z",
+        "lastUpdated": "2026-02-06T03:58:01.161Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ],
+    "hookify@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/hookify/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-02-06T03:58:01.164Z",
+        "lastUpdated": "2026-02-06T03:58:01.164Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ],
+    "learning-output-style@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-code-plugins/learning-output-style/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-06T03:58:01.167Z",
+        "lastUpdated": "2026-02-06T03:58:01.167Z",
+        "gitCommitSha": "ef1e0ac0981451ddb924f9c5789949ff48e1995c"
+      }
+    ]
+  }
+}

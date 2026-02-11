@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "claude-opus-4-6",
+
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "github@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "serena@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "figma@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "hookify@claude-plugins-official": false,
+    "linear@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true,
+    "learning-output-style@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "sentry@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "agent-sdk-dev@claude-code-plugins": true,
+    "claude-opus-4-5-migration@claude-code-plugins": true,
+    "code-review@claude-code-plugins": true,
+    "commit-commands@claude-code-plugins": true,
+    "explanatory-output-style@claude-code-plugins": true,
+    "feature-dev@claude-code-plugins": true,
+    "frontend-design@claude-code-plugins": true,
+    "hookify@claude-code-plugins": false,
+    "learning-output-style@claude-code-plugins": true
+  },
+
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+
+  "autoUpdatesChannel": "stable",
+  "alwaysThinkingEnabled": true,
+
+  "permissions": {
+    "allow": [
+      "mcp__pencil",
+      "Bash(npm run *)",
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(pnpm *)",
+      "Bash(bun *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git branch *)",
+      "Bash(git stash *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(gh pr *)",
+      "Bash(gh issue *)",
+      "Bash(gh api *)",
+      "Bash(ls *)",
+      "Bash(which *)",
+      "Bash(python *)",
+      "Bash(node *)",
+      "Bash(tsc *)",
+      "Bash(cargo *)",
+      "Bash(go *)",
+      "Bash(docker ps *)",
+      "Bash(docker logs *)",
+      "Bash(docker compose *)",
+      "Bash(kubectl get *)",
+      "Bash(kubectl describe *)",
+      "Bash(kubectl logs *)",
+      "Bash(tmux *)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(git rebase *)",
+      "Bash(git merge *)",
+      "Bash(docker run *)",
+      "Bash(docker build *)",
+      "Bash(rm -rf *)",
+      "Bash(kubectl apply *)",
+      "Bash(kubectl delete *)"
+    ],
+    "deny": [
+      "Bash(curl * | bash)",
+      "Bash(curl * | sh)",
+      "Bash(wget * | bash)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(./secrets/**)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/credentials*)",
+      "Read(**/*secret*)"
+    ]
+  },
+
+  "hooks": {
+  },
+
+  "extraKnownMarketplaces": {
+    "everything-claude-code": {
+      "source": {
+        "source": "github",
+        "repo": "affaan-m/everything-claude-code"
+      }
+    }
+  }
+}
