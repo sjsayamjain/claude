@@ -1,145 +1,344 @@
-# Plan: Historical Data Backfill — Phase 1 (MF via MFapi.in)
+# Plan: Complete Data Coverage — Corporate Actions, Symbols, Holidays, Index Data
 
 ## Goal
 
-Implement `--mode backfill` for mutual funds using MFapi.in's full history endpoint (`/mf/{code}` — returns ALL NAVs from inception). This gives complete NAV history (2006+) for all 37,402 schemes.
+Make the pipeline capture **every piece of freely available Indian market data** — fix all filtering gaps, add corporate actions, symbol masters, market holidays, and index data.
 
-## Why MF First
+## Current State
 
-- One HTTP call per scheme = full history (no day-by-day looping)
-- 10-worker concurrency pool already exists in `syncMutualFundsFallback`
-- Fetcher (`FetchMFAPI`) already exists but is never called
-- DB schema + upsert logic already handles ON CONFLICT (scheme_code, nav_date)
-- Stock backfill is Phase 2 (needs two URL formats, day iteration, holiday handling)
+- 33.6M MF NAVs (36,804 schemes, 2006-2026) ✅
+- 4.17M NSE EODs (4,024 symbols, 1996-2026) ✅
+- 8.13M BSE EODs (20,226 symbols, 2016-2026) ✅
+- Re-backfill is safe: MF NAVs update conditionally, stock EODs overwrite unconditionally
 
-## Volume Estimate
+## Problems Found (from 4-agent deep analysis)
 
-- 37,402 schemes × ~2,500 avg NAVs each = **~93M NAV rows**
-- Each NAV row: ~30 bytes → **~2.8 GB** raw data + indexes ~5 GB
-- Local Docker: fits comfortably
-
----
-
-## Changes Required
-
-### 1. New type: `NAVRecord` (`internal/pipeline/parser_mf.go`)
-
-Add alongside existing `MFScheme`:
-
-```go
-type NAVRecord struct {
-    Date time.Time
-    NAV  float64
-}
-```
-
-Add a `NAVHistory []NAVRecord` field to `MFScheme`. The existing `NAV`/`NAVDate` fields stay for backwards compat with the daily sync path.
-
-### 2. New parser: `ParseMFAPIFullHistory()` (`internal/pipeline/parser_mfapi.go`)
-
-New function that parses the `/mf/{code}` response (same JSON shape as `/latest`, but `Data[]` has thousands of entries):
-
-```go
-func ParseMFAPIFullHistory(data []byte) (*MFScheme, error)
-```
-
-- Parses `resp.Data` array → populates `scheme.NAVHistory` (all entries)
-- Also sets `scheme.NAV`/`scheme.NAVDate` to `Data[0]` (latest) for scheme upsert compat
-- Skips entries with unparseable NAV/date (log + continue)
-
-### 3. New store method: `BulkInsertMFNAVHistory()` (`internal/pipeline/store.go`)
-
-The existing `BulkInsertMFNAVs` reads one NAV per scheme. New method reads from `NAVHistory`:
-
-```go
-func (s *Store) BulkInsertMFNAVHistory(ctx context.Context, schemes []MFScheme) (inserted int, err error)
-```
-
-- Same COPY-to-temp-table pattern as existing `BulkInsertMFNAVs`
-- Iterates `scheme.NAVHistory` to build rows (not single `scheme.NAV`)
-- Same ON CONFLICT upsert logic
-- Handles large batches (a single scheme can have 5,000+ NAVs)
-
-### 4. New sync method: `syncMFBackfill()` (`internal/pipeline/sync.go`)
-
-New orchestrator for backfill mode (similar to `syncMutualFundsFallback` but uses full history):
-
-```go
-func (s *Syncer) syncMFBackfill(ctx context.Context) (*MFSyncResult, error)
-```
-
-**Flow:**
-1. Fetch scheme list via `FetchMFAPISchemeList()`
-2. 10 concurrent workers fetch `FetchMFAPI(code)` (full history, NOT `/latest`)
-3. Parse via `ParseMFAPIFullHistory()`
-4. Batch store via `BulkUpsertMFSchemes` + `BulkInsertMFNAVHistory` every 100 schemes
-5. Progress logging every 500 schemes
-6. Graceful cancellation via context
-
-**Rate limiting:** Add 100ms delay between requests per worker to stay gentle (~100 req/sec total across 10 workers). MFapi.in has no documented rate limit but courtesy matters.
-
-### 5. Wire backfill mode in `Run()` (`internal/pipeline/sync.go`)
-
-In the `Run()` method, add a check:
-
-```go
-if s.config.Mode == SyncModeBackfill && s.config.EnableMF {
-    mfResult, err := s.syncMFBackfill(ctx)
-    // ...
-}
-```
-
-Backfill mode skips stocks for now (Phase 2). Daily sync path unchanged.
-
-### 6. CLI: Add `--from` flag (`cmd/marketdata-sync/main.go`)
-
-Not strictly needed for MF backfill (MFapi gives everything), but useful for stock backfill later. For now, `--mode backfill` is the only trigger needed. The `--date` flag is ignored in MF backfill since MFapi returns inception-to-date automatically.
-
-Add a note in the `--mode backfill` path that stocks are not yet supported.
-
-### 7. Batch size tuning
-
-The existing fallback uses batch=500 schemes. For backfill, each scheme carries ~2,500 NAVs, so 500 schemes = 1.25M NAV rows per batch insert. That's too large for a single COPY + upsert transaction.
-
-**Adjusted batch sizes:**
-- Store every **50 schemes** (≈125K NAV rows per batch — manageable)
-- Log progress every 500 schemes
+1. **NSE series filter too aggressive** — only EQ/BE/BZ/SM/ST kept, ETFs/InvITs/REITs/Gold Bonds excluded
+2. **No corporate actions** — splits, bonuses, dividends, rights, name changes missing entirely
+3. **No symbol master sync** — symbols only come from bhavcopy, sector/industry never populated
+4. **No market holiday calendar** — discovers holidays via 404 errors, `is_trading_day()` SQL exists but unused
+5. **UDiFF deliverable data not parsed** — `DLVRYQTY`/`DLVRYPCT` columns ignored
+6. **No index data** — Nifty 50, Sensex, sector indices missing
+7. **Dead code** — `stringToUpper()` in fetcher.go unused
+8. **`mv_latest_eod` only shows EQ series** — even if we add ETFs, the view won't show them
 
 ---
 
-## Files Modified
+## Phase A: Quick Wins (fix existing gaps)
 
-| File | Change |
-|------|--------|
-| `internal/pipeline/parser_mf.go` | Add `NAVRecord` type, `NAVHistory` field to `MFScheme` |
-| `internal/pipeline/parser_mfapi.go` | Add `ParseMFAPIFullHistory()` function |
-| `internal/pipeline/store.go` | Add `BulkInsertMFNAVHistory()` method |
-| `internal/pipeline/sync.go` | Add `syncMFBackfill()`, wire into `Run()` for backfill mode |
-| `cmd/marketdata-sync/main.go` | Log that backfill skips stocks, no new flags needed yet |
+### A1. Expand NSE series filter
 
-## Files NOT Modified
+**File**: `internal/pipeline/parser_stocks.go` (line 105)
 
-- `fetcher.go` — `FetchMFAPI(code)` already exists and works (tested earlier)
-- `store.go` `BulkUpsertMFSchemes` — already works with `MFScheme`, will use existing `NAV`/`NAVDate` fields
-- Daily sync path — completely untouched, backfill is a separate code path
+Replace inline `if` with map-based lookup. Add series:
+
+| Series | What | Action |
+|--------|------|--------|
+| EQ, BE, BZ, SM, ST | Equity types | Already included |
+| **E1** | ETFs | **ADD** |
+| **IV** | InvITs | **ADD** |
+| **RR** | REITs | **ADD** |
+| **GB** | Sovereign Gold Bonds | **ADD** |
+| **GS** | Govt Securities (retail) | **ADD** |
+| **MF** | Exchange-traded MF units | **ADD** |
+
+```go
+var nseAllowedSeries = map[string]bool{
+    "EQ": true, "BE": true, "BZ": true, "SM": true, "ST": true,
+    "E1": true, "IV": true, "RR": true, "GB": true, "GS": true, "MF": true,
+}
+// Replace line 105: if nseAllowedSeries[stock.Series] {
+```
+
+### A2. Parse deliverable qty/pct from UDiFF format
+
+**File**: `internal/pipeline/parser_stocks.go` (lines 262-268)
+
+Add UDiFF column name aliases to the existing `getValue()` calls:
+
+```go
+// Change from: getValue("DELIV_QTY")
+// Change to:   getValue("DELIV_QTY", "DLVRYQTY", "DLVRBLQTY")
+// Same for:    getValue("DELIV_PER", "DLVRYPCT", "PCTDLVRYTOTTRDGVOL")
+```
+
+### A3. Conditional stock EOD update (avoid unnecessary writes on re-backfill)
+
+**File**: `internal/pipeline/store.go` (lines 380-391)
+
+Add WHERE clause to stock EOD ON CONFLICT (like MF NAVs already have):
+
+```sql
+ON CONFLICT ... DO UPDATE SET ...
+WHERE stock_eod.close_price != EXCLUDED.close_price
+   OR stock_eod.volume != EXCLUDED.volume
+   OR COALESCE(stock_eod.deliverable_qty, 0) != COALESCE(EXCLUDED.deliverable_qty, 0)
+```
+
+### A4. Remove dead code
+
+**File**: `internal/pipeline/fetcher.go` (lines 330-341)
+
+Delete `stringToUpper()` — never called, `strings.ToUpper()` used everywhere instead.
+
+### A5. Market holidays table
+
+**New file**: `migrations/002_market_holidays.sql`
+
+```sql
+CREATE TABLE IF NOT EXISTS market_holidays (
+    holiday_date DATE NOT NULL,
+    exchange     VARCHAR(10) NOT NULL DEFAULT 'BOTH',
+    name         TEXT NOT NULL,
+    PRIMARY KEY (holiday_date, exchange)
+);
+```
+
+Seed with 2016-2027 NSE/BSE holidays (both exchanges share holidays for equities). Rewrite `is_trading_day()` to query this table.
+
+**File**: `internal/pipeline/store.go` — add `IsTradingDay(ctx, date, exchange)` method.
+
+**File**: `internal/pipeline/sync.go` (line 714-717) — use `IsTradingDay()` instead of just weekend check in backfill loop. Silently skip holidays instead of getting 404s.
+
+### A6. Fix mv_latest_eod to include all allowed series
+
+**File**: `migrations/002_market_holidays.sql` (same migration)
+
+Drop and recreate `mv_latest_eod` to remove the `WHERE e.series = 'EQ'` filter, or change it to include all allowed series.
+
+---
+
+## Phase B: Corporate Actions
+
+### B1. Schema
+
+**New file**: `migrations/003_corporate_actions.sql`
+
+```sql
+CREATE TABLE IF NOT EXISTS corporate_actions (
+    id              BIGSERIAL PRIMARY KEY,
+    symbol          VARCHAR(20) NOT NULL,
+    exchange        VARCHAR(10) NOT NULL DEFAULT 'NSE',
+    action_type     VARCHAR(30) NOT NULL,   -- SPLIT, BONUS, DIVIDEND, RIGHTS, NAME_CHANGE, MERGER, BUYBACK
+    ex_date         DATE NOT NULL,
+    record_date     DATE,
+    ratio_from      INTEGER,                -- old face value (split) or held shares (bonus)
+    ratio_to        INTEGER,                -- new face value (split) or free shares (bonus)
+    dividend_amount DECIMAL(15,4),
+    dividend_pct    DECIMAL(8,4),
+    dividend_type   VARCHAR(20),            -- INTERIM, FINAL, SPECIAL
+    rights_price    DECIMAL(15,2),
+    old_symbol      VARCHAR(20),
+    new_symbol      VARCHAR(20),
+    description     TEXT,                   -- raw subject text from exchange
+    source          VARCHAR(20) NOT NULL,
+    raw_data        JSONB,
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (symbol, exchange, action_type, ex_date)
+);
+```
+
+### B2. Fetcher — NSE corporate actions
+
+**File**: `internal/pipeline/fetcher.go`
+
+NSE API requires session cookies. Two-step approach:
+1. `getNSESessionCookies(ctx)` — GET `https://www.nseindia.com/` to obtain cookies
+2. `FetchNSECorporateActions(ctx, from, to)` — GET `https://www.nseindia.com/api/corporates-corporateActions?index=equities&from_date=DD-MM-YYYY&to_date=DD-MM-YYYY` with cookies
+
+If NSE blocks the API (anti-bot), fallback: NSE archives publish corporate action reports as CSV.
+
+### B3. Fetcher — BSE corporate actions
+
+**File**: `internal/pipeline/fetcher.go`
+
+BSE API is open (no session cookies):
+`FetchBSECorporateActions(ctx, from, to)` — GET `https://api.bseindia.com/BseIndiaAPI/api/CorporateAction/w?from_date=YYYYMMDD&to_date=YYYYMMDD&segment=Equity`
+
+### B4. Parser
+
+**New file**: `internal/pipeline/parser_corpactions.go`
+
+Types: `CorporateAction`, `CorporateActionParseResult`
+
+Two parse functions: `ParseNSECorporateActions(data)`, `ParseBSECorporateActions(data)`
+
+Key challenge: parsing the NSE `subject` field into structured data:
+- `"Bonus issue 1:1"` → action_type=BONUS, ratio_from=1, ratio_to=1
+- `"Face Value Split From Rs. 10/- to Rs. 2/-"` → action_type=SPLIT, ratio_from=10, ratio_to=2
+- `"Dividend - Rs 10/- Per Share"` → action_type=DIVIDEND, dividend_amount=10
+- `"Interim Dividend Rs.22.50"` → dividend_type=INTERIM, dividend_amount=22.50
+
+Use regex patterns for each action type. Store raw `subject` in `description` for anything unparseable.
+
+### B5. Store + Sync
+
+**File**: `internal/pipeline/store.go` — `BulkUpsertCorporateActions()` (COPY + upsert pattern)
+
+**File**: `internal/pipeline/sync.go` — `syncCorporateActions(ctx, from, to)`:
+- Daily mode: fetch last 30 days (catches newly announced actions)
+- Backfill mode: fetch from `--from` to `--to`
+
+### B6. CLI + API
+
+**File**: `cmd/marketdata-sync/main.go` — add `--corp-actions` flag. Included in `full` mode by default.
+
+**File**: `internal/api/handlers_market.go` — add `GET /api/v1/stocks/{symbol}/corporate-actions?exchange=&type=&from=&to=`
+
+---
+
+## Phase C: Symbol Master Sync
+
+### C1. Fetchers
+
+**File**: `internal/pipeline/fetcher.go`
+
+- `FetchNSEEquityList(ctx)` — GET `https://nsearchives.nseindia.com/content/equities/EQUITY_L.csv` (direct, no auth)
+  - Fields: SYMBOL, NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE
+- `FetchBSEScripMaster(ctx)` — GET `https://api.bseindia.com/BseIndiaAPI/api/ListOfScripData/w?segment=Equity&status=Active`
+  - Fields: SCRIP_CD, SCRIP_NAME, STATUS, GROUP, FACE_VALUE, ISIN_NUMBER, INDUSTRY, SECTOR_NAME
+
+### C2. Parser
+
+**New file**: `internal/pipeline/parser_symbols.go`
+
+Types: `SymbolMasterEntry` (symbol, company_name, series, isin, exchange, sector, industry, face_value, listing_date, is_active)
+
+- `ParseNSEEquityList(data)` — CSV parse
+- `ParseBSEScripMaster(data)` — JSON parse
+
+### C3. Schema enhancement
+
+**New file**: `migrations/004_symbol_master.sql`
+
+```sql
+ALTER TABLE stock_symbols ADD COLUMN IF NOT EXISTS face_value DECIMAL(10,2);
+ALTER TABLE stock_symbols ADD COLUMN IF NOT EXISTS listing_date DATE;
+ALTER TABLE stock_symbols ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE stock_symbols ADD COLUMN IF NOT EXISTS delisted_date DATE;
+```
+
+### C4. Store + Sync
+
+**File**: `internal/pipeline/store.go` — `BulkUpsertSymbolMaster()` — updates sector, industry, face_value, listing_date (existing columns + new ones). Uses COALESCE to not clobber existing data with empty values.
+
+**File**: `internal/pipeline/sync.go` — `syncSymbolMaster(ctx)` — fetch + parse + store for both exchanges. Run once per day in `full` mode.
+
+### C5. CLI
+
+**File**: `cmd/marketdata-sync/main.go` — add `--symbol-master` flag. Included in `full` mode.
+
+---
+
+## Phase D: Index Data
+
+### D1. Schema
+
+**New file**: `migrations/005_index_data.sql`
+
+Tables:
+- `market_indices` — index master (code, exchange, display_name, base_date, base_value)
+- `index_eod` — daily OHLCV per index (partitioned by year like stock_eod)
+- `index_constituents` — which symbols are in which index + weight
+
+### D2. Fetchers
+
+**File**: `internal/pipeline/fetcher.go`
+
+- `FetchNSEIndexBhavcopy(ctx, date)` — GET `https://nsearchives.nseindia.com/content/indices/ind_close_all_DDMMYYYY.csv`
+  - Contains OHLCV for ALL ~100 NSE indices in one CSV. No auth needed.
+- `FetchNSEIndexConstituents(ctx, indexSlug)` — GET `https://www.niftyindices.com/IndexConstituent/ind_{slug}list.csv`
+  - e.g., `ind_nifty50list.csv`, `ind_niftybanklist.csv`
+
+### D3. Parser
+
+**New file**: `internal/pipeline/parser_index.go`
+
+Types: `IndexEOD`, `IndexConstituent`
+
+- `ParseNSEIndexBhavcopy(data, date)` — CSV with columns: Index Name, Index Date, Open, High, Low, Close, Points Change, Change%, Volume, Turnover, P/E, P/B, Div Yield
+- `ParseNSEIndexConstituents(data, indexCode, asOfDate)` — CSV with: Company Name, Industry, Symbol, Series, ISIN
+
+### D4. Store + Sync
+
+**File**: `internal/pipeline/store.go` — `BulkUpsertIndexEOD()`, `BulkUpsertIndexConstituents()`
+
+**File**: `internal/pipeline/sync.go` — `syncIndexData(ctx, date)`:
+- Fetch NSE index bhavcopy for the target date
+- Parse all indices
+- Store
+- Fetch constituents weekly (not daily — composition changes rarely)
+
+### D5. CLI + API + Materialized View
+
+**File**: `cmd/marketdata-sync/main.go` — add `--index-only`, `--no-index` flags
+
+**File**: `internal/api/handlers_market.go` — add endpoints:
+- `GET /api/v1/indices/{code}/eod` — latest
+- `GET /api/v1/indices/{code}/history` — historical
+- `GET /api/v1/indices/{code}/constituents`
+- `GET /api/v1/indices/search?q=nifty`
+
+Add `mv_latest_index` materialized view.
+
+---
+
+## Files Summary
+
+### New Files (7)
+
+| File | Phase | Purpose |
+|------|-------|---------|
+| `migrations/002_market_holidays.sql` | A | Holiday table + seed + fix is_trading_day() + fix mv_latest_eod |
+| `migrations/003_corporate_actions.sql` | B | Corporate actions table |
+| `migrations/004_symbol_master.sql` | C | Add face_value, listing_date, is_active, delisted_date to stock_symbols |
+| `migrations/005_index_data.sql` | D | market_indices, index_eod, index_constituents tables |
+| `internal/pipeline/parser_corpactions.go` | B | Corporate actions parser (NSE + BSE) |
+| `internal/pipeline/parser_symbols.go` | C | Symbol master parser (NSE EQUITY_L.csv + BSE scrip JSON) |
+| `internal/pipeline/parser_index.go` | D | Index bhavcopy + constituents parser |
+
+### Modified Files (6)
+
+| File | Phases | Changes |
+|------|--------|---------|
+| `internal/pipeline/parser_stocks.go` | A | Series filter → map, UDiFF deliverable columns |
+| `internal/pipeline/store.go` | A,B,C,D | Conditional EOD update, IsTradingDay(), BulkUpsertCorporateActions(), BulkUpsertSymbolMaster(), BulkUpsertIndexEOD(), BulkUpsertIndexConstituents() |
+| `internal/pipeline/fetcher.go` | A,B,C,D | Remove stringToUpper(), getNSESessionCookies(), FetchNSE/BSECorporateActions(), FetchNSEEquityList(), FetchBSEScripMaster(), FetchNSEIndexBhavcopy(), FetchNSEIndexConstituents() |
+| `internal/pipeline/sync.go` | A,B,C,D | Holiday-aware backfill, syncCorporateActions(), syncSymbolMaster(), syncIndexData() |
+| `cmd/marketdata-sync/main.go` | B,C,D | New flags: --corp-actions, --symbol-master, --index-only, --no-index, --no-corp-actions |
+| `internal/api/handlers_market.go` | B,D | Corporate actions endpoint, index endpoints |
 
 ---
 
 ## Verification Plan
 
-1. **Build**: `go build ./cmd/marketdata-sync` — must compile clean
-2. **Reset DB**: `docker compose -f deploy/docker-compose.yml down -v && up -d db`
-3. **Quick test** (5 schemes): Write a temporary test in `cmd/test-backfill/main.go` that fetches 5 schemes with full history, parses them, stores to DB, and verifies NAV counts
-4. **Full backfill**: `./marketdata-sync --db "..." --mode backfill --mf-only -v`
-   - Expect: ~37K schemes processed, ~93M NAV rows inserted
-   - Monitor progress via logs (every 500 schemes)
-   - Duration estimate: 37K schemes / 100 req/sec ≈ 6-7 minutes for fetching + storage time
-5. **Verify DB**:
-   ```sql
-   SELECT COUNT(*) FROM mf_navs;  -- Should be ~93M
-   SELECT COUNT(DISTINCT scheme_code) FROM mf_navs;  -- Should be ~37K
-   SELECT MIN(nav_date), MAX(nav_date) FROM mf_navs;  -- 2006-ish to 2026-02-09
-   SELECT scheme_code, COUNT(*) FROM mf_navs GROUP BY scheme_code ORDER BY count DESC LIMIT 5;
-   ```
-6. **Daily sync still works**: Run `./marketdata-sync --db "..." --mode full --mf-only -v` and verify it doesn't break
-7. **Update CLAUDE.md**: Document backfill mode, MFapi full history, volume numbers
+### Phase A
+1. `go build ./cmd/marketdata-sync` — compiles
+2. Run daily sync for recent date → ETF symbols (NIFTYBEES, GOLDBEES) now appear
+3. `SELECT COUNT(*) FROM stock_eod WHERE deliverable_qty > 0 AND trade_date = '2026-02-10'` — nonzero
+4. Re-run same date → `RowsAffected = 0` (conditional update working)
+5. `SELECT is_trading_day('2026-01-26', 'NSE')` → false (Republic Day)
+6. Run backfill for week with holiday → no 404 for that date
+
+### Phase B
+1. `--corp-actions --date 2026-02-10 -v` — fetches and stores corporate actions
+2. `SELECT action_type, COUNT(*) FROM corporate_actions GROUP BY action_type` — shows DIVIDEND, SPLIT, BONUS
+3. Backfill: `--mode backfill --corp-actions --from 2024-01-01 -v`
+4. Cross-check: find known RELIANCE 1:1 bonus (2017) or TCS dividend
+
+### Phase C
+1. `--symbol-master -v` — fetches NSE EQUITY_L.csv + BSE scrip master
+2. `SELECT COUNT(*) FROM stock_symbols WHERE sector IS NOT NULL` — thousands (was 0)
+3. `SELECT symbol, sector, industry, listing_date FROM stock_symbols WHERE sector IS NOT NULL LIMIT 10`
+
+### Phase D
+1. `--index-only --date 2026-02-10 -v` — fetches ~100 NSE indices
+2. `SELECT * FROM index_eod WHERE index_code = 'Nifty 50' ORDER BY trade_date DESC LIMIT 5`
+3. Backfill: `--mode backfill --index-only --from 2024-01-01 -v`
+4. `SELECT * FROM index_constituents WHERE index_code = 'Nifty 50'`
+5. API: `GET /api/v1/indices/Nifty%2050/history`
+
+### Final
+- Full sync: `--mode full -v` — runs everything (MF + NSE + BSE + corp actions + symbol master + indices)
+- `--mode backfill --from 2016-01-04 -v` — full historical backfill with holiday skipping
+- Update README.md and CLAUDE.md with new features, tables, flags

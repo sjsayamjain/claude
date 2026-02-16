@@ -124,10 +124,10 @@
     "superpowers@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/superpowers/4.2.0",
-        "version": "4.2.0",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/superpowers/4.3.0",
+        "version": "4.3.0",
         "installedAt": "2026-02-06T03:57:57.662Z",
-        "lastUpdated": "2026-02-06T03:57:57.662Z",
+        "lastUpdated": "2026-02-13T04:13:39.713Z",
         "gitCommitSha": "a98c5dfc9de0df5318f4980d91d24780a566ee60"
       }
     ],
@@ -154,10 +154,10 @@
     "figma@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/figma/1.0.0",
-        "version": "1.0.0",
+        "installPath": "/Users/sayamjain/.claude/plugins/cache/claude-plugins-official/figma/1.1.0",
+        "version": "1.1.0",
         "installedAt": "2026-02-06T03:57:58.776Z",
-        "lastUpdated": "2026-02-06T03:57:58.776Z",
+        "lastUpdated": "2026-02-12T04:43:14.352Z",
         "gitCommitSha": "20aca44ee6ba6092037e943c151c067896828360"
       }
     ],

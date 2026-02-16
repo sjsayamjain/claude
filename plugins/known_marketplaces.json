@@ -5,7 +5,7 @@
       "repo": "anthropics/claude-plugins-official"
     },
     "installLocation": "/Users/sayamjain/.claude/plugins/marketplaces/claude-plugins-official",
-    "lastUpdated": "2026-02-10T09:26:17.128Z"
+    "lastUpdated": "2026-02-16T01:59:55.273Z"
   },
   "claude-code-plugins": {
     "source": {
@@ -13,6 +13,22 @@
       "repo": "anthropics/claude-code"
     },
     "installLocation": "/Users/sayamjain/.claude/plugins/marketplaces/claude-code-plugins",
-    "lastUpdated": "2026-02-10T14:48:33.818Z"
+    "lastUpdated": "2026-02-15T13:54:52.073Z"
+  },
+  "everything-claude-code": {
+    "source": {
+      "source": "github",
+      "repo": "affaan-m/everything-claude-code"
+    },
+    "installLocation": "/Users/sayamjain/.claude/plugins/marketplaces/everything-claude-code",
+    "lastUpdated": "2026-02-10T15:33:30.536Z"
+  },
+  "voltagent-subagents": {
+    "source": {
+      "source": "github",
+      "repo": "VoltAgent/awesome-claude-code-subagents"
+    },
+    "installLocation": "/Users/sayamjain/.claude/plugins/marketplaces/voltagent-subagents",
+    "lastUpdated": "2026-02-10T15:56:08.855Z"
   }
 }
